@@ -1,0 +1,31 @@
+import numpy as np
+import soundfile as sf
+
+def amplitude_to_db(amplitude):
+    """Convert amplitude to decibels."""
+    with np.errstate(divide='ignore'):
+        return 20 * np.log10(np.abs(amplitude))
+
+def extract_audio_data(flac_file_path, output_txt_file_path):
+    print(f"Starting to extract audio data from {flac_file_path}...")
+    
+    data, samplerate = sf.read(flac_file_path)
+    
+    if len(data.shape) > 1:
+        data = data[:, 0]  # [:, 1] 右声道
+    
+    db_signal = amplitude_to_db(data)
+    
+    timestamps = np.arange(len(db_signal)) / samplerate
+    
+    with open(output_txt_file_path, 'w') as file:
+        for time, db in zip(timestamps, db_signal):
+            file.write(f"{time}, {db}\n")
+    
+    print(f"Data extracted and saved to {output_txt_file_path}")
+
+# 保存路径
+flac_path = "/home/zyf/桌面/22-No Time for Caution.flac"  
+txt_path = "/home/zyf/桌面/output_db.txt"  
+
+extract_audio_data(flac_path, txt_path)

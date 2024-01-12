@@ -1,0 +1,33 @@
+import numpy as np
+
+def calculate_loudness_statistics_with_max_time(file_path):
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    time_db_pairs = [(float(line.split(',')[0]), float(line.split(',')[1])) for line in lines]
+    db_intensities = [db for _, db in time_db_pairs if db > -float('inf')]  # Filtering out -inf values
+
+    # average
+    average_loudness = np.mean(db_intensities)
+
+    # top 2%
+    top_2_percent_idx = int(len(db_intensities) * 0.02)
+    top_2_percent_loudness = np.mean(sorted(db_intensities, reverse=True)[:top_2_percent_idx])
+
+    # lowest 5%
+    lowest_5_percent_loudness = np.mean(sorted(db_intensities)[:int(len(db_intensities) * 0.05)])
+
+    # max&time
+    max_loudness_time, max_loudness_value = max(time_db_pairs, key=lambda pair: pair[1])
+
+    return average_loudness, top_2_percent_loudness, lowest_5_percent_loudness, max_loudness_time, max_loudness_value
+
+# 文件地址
+file_path = '/home/zyf/桌面/output_db.txt'
+
+average_loudness, top_2_percent_loudness, lowest_5_percent_loudness, max_loudness_time, max_loudness_value = calculate_loudness_statistics_with_max_time(file_path)
+
+print(f"Average Loudness: {average_loudness} dB")
+print(f"Top 2% Average Loudness: {top_2_percent_loudness} dB")
+print(f"Lowest 5% Average Loudness: {lowest_5_percent_loudness} dB")
+print(f"Maximum Loudness: {max_loudness_value} dB at time {max_loudness_time} seconds")
